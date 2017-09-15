@@ -28,6 +28,7 @@ Install through pip
    pip install passhole
 
 Or latest
+
 .. code:: bash
 
    pip install -e git+https://github.com/purdueLUG/passhole.git#egg=passhole
