@@ -44,7 +44,12 @@ numeric = '0123456789'
 symbolic = '!@#$%^&*()_+-=[]{};:'"<>,./?\|`~"
 
 c = gpgme.Context()
-default_key = next(c.keylist())
+keys = [key for key in c.keylist()]
+if keys:
+    default_key = next(c.keylist())
+else:
+    raise Exception('No GPG key is available, please create or load one')
+
 
 def red(text):
     return Fore.RED + text + Fore.RESET
