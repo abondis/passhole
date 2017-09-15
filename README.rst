@@ -16,6 +16,7 @@ Dependencies
 
 - PyUserInput
 - pykeepass
+- gnupg
 
 Installation
 ------------
@@ -26,8 +27,15 @@ Install through pip
 
    pip install passhole
 
+Or latest
+.. code:: bash
+
+   pip install -e git+https://github.com/purdueLUG/passhole.git#egg=passhole
+
 Example Usage
 --------------
+
+Note: This program uses GPG to store temporary files, you need to have a GPG key available
 
 .. code:: bash
 
@@ -82,5 +90,14 @@ Example Usage
    >>> passhole type dmenu --tabbed
    Evidlo	inns-ambien-travelling-throw-force
 
+Troubleshooting
+---------------
 
+.. code:: python
+
+   File "~/passhole/passhole/passhole.py", line 47, in <module>
+     default_key = next(c.keylist())
+   StopIteration
+   
+GPG key doesn't exist or is not loaded in GPG agent
   
