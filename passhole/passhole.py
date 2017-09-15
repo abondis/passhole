@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-## Evan Widloski - 2017-03-07
-## Passhole - Keepass CLI + dmenu interface
+# Evan Widloski - 2017-03-07
+# Passhole - Keepass CLI + dmenu interface
 
 from __future__ import absolute_import
 from builtins import input
@@ -9,7 +9,7 @@ from .version import __version__
 from pykeepass.pykeepass import PyKeePass
 from pykeepass.group import Group
 from pykeepass.entry import Entry
-from subprocess import Popen, PIPE, STDOUT # for talking to dmenu programs
+from subprocess import Popen, PIPE, STDOUT  # for talking to dmenu programs
 from pykeyboard import PyKeyboard          # for sending password to keyboard
 from getpass import getpass
 from colorama import Fore, Back, Style
@@ -17,7 +17,8 @@ from base64 import b64encode
 from io import BytesIO
 import gpgme
 import random
-import os, sys
+import os
+import sys
 import shutil
 import logging
 import argparse
@@ -47,14 +48,22 @@ default_key = next(c.keylist())
 
 def red(text):
     return Fore.RED + text + Fore.RESET
+
+
 def green(text):
     return Fore.GREEN + text + Fore.RESET
+
+
 def blue(text):
     return Fore.BLUE + text + Fore.RESET
+
+
 def bold(text):
     return Style.BRIGHT + text + Style.RESET_ALL
 
 # create database
+
+
 def init_database(args):
 
     # create database if it doesn't exist
@@ -80,7 +89,9 @@ def init_database(args):
 
             log.debug("Looking for keyfile at {}".format(keyfile))
             if os.path.exists(keyfile):
-                log.info("Found existing keyfile at {}  Exiting".format(bold(keyfile)))
+                log.info(
+                    "Found existing keyfile at {}  Exiting".format(
+                        bold(keyfile)))
                 sys.exit()
 
             with open(keyfile, 'w') as f:
@@ -96,10 +107,13 @@ def init_database(args):
 
     # quit if database already exists
     else:
-        log.info("Found existing database at " + Style.BRIGHT + args.database + Style.RESET_ALL + ". Exiting")
+        log.info("Found existing database at " + Style.BRIGHT +
+                 args.database + Style.RESET_ALL + ". Exiting")
         sys.exit()
 
 # cache database password to a gpg encrypted file
+
+
 def create_password_cache(cache, password):
     infile = BytesIO(password.encode('utf8'))
     with open(cache, 'wb') as outfile:
@@ -107,10 +121,13 @@ def create_password_cache(cache, password):
     infile.close()
 
 # load database
+
+
 def open_database(args):
     # check if database exists
     if not os.path.exists(args.database):
-        log.error("No database found at {}. Run `passhole init`".format(args.database))
+        log.error(
+            "No database found at {}. Run `passhole init`".format(args.database))
         sys.exit()
     # check if keyfile exists, try to use default keyfile
     if args.nokeyfile:
@@ -140,16 +157,16 @@ def open_database(args):
     else:
         # check if running in interactive shell
         if False:
-        # if os.isatty(sys.stdout.fileno()):
+            # if os.isatty(sys.stdout.fileno()):
             password = getpass('Enter password to cache')
         # otherwise use zenity
         else:
             NULL = open(os.devnull, 'w')
             p = Popen(["zenity", "--password"],
-                    stdin=PIPE,
-                    stdout=PIPE,
-                    stderr=NULL,
-                    close_fds=True)
+                      stdin=PIPE,
+                      stdout=PIPE,
+                      stderr=NULL,
+                      close_fds=True)
             password = p.communicate()[0].decode('utf-8').rstrip('\n')
 
         if password:
@@ -159,7 +176,8 @@ def open_database(args):
             log.error("No password given")
             sys.exit()
 
-    log.debug("opening {} with password:{} and keyfile:{}".format(args.database, password, keyfile))
+    log.debug("opening {} with password:{} and keyfile:{}".format(
+        args.database, password, keyfile))
     try:
         kp = PyKeePass(args.database, password=password, keyfile=keyfile)
     except IOError:
@@ -169,6 +187,8 @@ def open_database(args):
 
 # select an entry using `prog`, then type the password
 # if `tabbed` is True, type out username, TAB, password
+
+
 def type_entries(args):
     kp = open_database(args)
 
@@ -229,7 +249,7 @@ def list_entries(args):
             else:
                 log.info(' ' * depth + "├── {0}".format(entry.title))
         for group in sorted(group.subgroups, key=lambda x: x.__str__()):
-            list_items(group, depth+4)
+            list_items(group, depth + 4)
 
     for entry in sorted(kp.root_group.entries, key=lambda x: x.__str__()):
         log.info(entry.title)
@@ -276,16 +296,18 @@ def add(args):
             with open(wordlist_file, 'r') as f:
                 wordlist = f.read().splitlines()
                 selected = rng.sample(wordlist, args.words)
-            password =  '.'.join(selected)
+            password = '.'.join(selected)
 
         # generate alphanumeric password
         elif args.alphanumeric:
-            selected = [rng.choice(alphabetic + numeric) for _ in range(0, args.alphanumeric)]
+            selected = [rng.choice(alphabetic + numeric)
+                        for _ in range(0, args.alphanumeric)]
             password = ''.join(selected)
 
         # generate alphanumeric + symbolic password
         elif args.symbolic:
-            selected = [rng.choice(alphabetic + numeric + symbolic) for _ in range(0, args.symbolic)]
+            selected = [rng.choice(alphabetic + numeric + symbolic)
+                        for _ in range(0, args.symbolic)]
             password = ''.join(selected)
 
         # prompt for password instead of generating it
@@ -325,7 +347,8 @@ def remove(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Append -h to any command to view its syntax.")
+    parser = argparse.ArgumentParser(
+        description="Append -h to any command to view its syntax.")
     parser._positionals.title = "commands"
 
     subparsers = parser.add_subparsers()
@@ -333,46 +356,66 @@ def main():
     subparsers.required = True
 
     # process args for `show` command
-    show_parser = subparsers.add_parser('show', help="show the contents of an entry")
-    show_parser.add_argument('entry_path', metavar='PATH', type=str, help="Path to KeePass entry")
+    show_parser = subparsers.add_parser(
+        'show', help="show the contents of an entry")
+    show_parser.add_argument('entry_path', metavar='PATH',
+                             type=str, help="Path to KeePass entry")
     show_parser.set_defaults(func=show)
 
     # process args for `type` command
-    type_parser = subparsers.add_parser('type', help="select entries using dmenu (or similar) and send to keyboard")
-    type_parser.add_argument('prog', metavar='PROG', nargs='?', default='dmenu', help="dmenu-like program to call")
-    type_parser.add_argument('--tabbed', action='store_true', default=False, help="type both username and password (tab separated)")
+    type_parser = subparsers.add_parser(
+        'type', help="select entries using dmenu (or similar) and send to keyboard")
+    type_parser.add_argument('prog', metavar='PROG', nargs='?',
+                             default='dmenu', help="dmenu-like program to call")
+    type_parser.add_argument('--tabbed', action='store_true', default=False,
+                             help="type both username and password (tab separated)")
     type_parser.set_defaults(func=type_entries)
 
     # process args for `add` command
-    add_parser = subparsers.add_parser('add', help="add new entry (e.g. `foo`) or group (e.g. `foo/`)")
-    add_parser.add_argument('path', metavar='PATH', type=str, help="path to new KeePass entry/group")
-    add_parser.add_argument('-w', '--words', metavar='length', type=int, nargs='?', const=5, default=None, help="generate 'correct horse battery staple' style password (https://xkcd.com/936/) when creating entry ")
-    add_parser.add_argument('-a', '--alphanumeric', metavar='length', type=int, nargs='?', const=16, default=None, help="generate alphanumeric password")
-    add_parser.add_argument('-s', '--symbolic', metavar='length', type=int, nargs='?', const=16, default=None, help="generate alphanumeric + symbolic password")
+    add_parser = subparsers.add_parser(
+        'add', help="add new entry (e.g. `foo`) or group (e.g. `foo/`)")
+    add_parser.add_argument('path', metavar='PATH',
+                            type=str, help="path to new KeePass entry/group")
+    add_parser.add_argument('-w', '--words', metavar='length', type=int, nargs='?', const=5, default=None,
+                            help="generate 'correct horse battery staple' style password (https://xkcd.com/936/) when creating entry ")
+    add_parser.add_argument('-a', '--alphanumeric', metavar='length', type=int,
+                            nargs='?', const=16, default=None, help="generate alphanumeric password")
+    add_parser.add_argument('-s', '--symbolic', metavar='length', type=int, nargs='?',
+                            const=16, default=None, help="generate alphanumeric + symbolic password")
     add_parser.set_defaults(func=add)
 
     # process args for `remove` command
-    remove_parser = subparsers.add_parser('remove', help="remove an entry (e.g. `foo`) or group (e.g. `foo/`)")
-    remove_parser.add_argument('path', metavar='PATH', type=str, help="path to KeePass entry/group to delete")
+    remove_parser = subparsers.add_parser(
+        'remove', help="remove an entry (e.g. `foo`) or group (e.g. `foo/`)")
+    remove_parser.add_argument(
+        'path', metavar='PATH', type=str, help="path to KeePass entry/group to delete")
     remove_parser.set_defaults(func=remove)
 
     # process args for `list` command
-    list_parser = subparsers.add_parser('list', help="list entries in the database")
+    list_parser = subparsers.add_parser(
+        'list', help="list entries in the database")
     list_parser.set_defaults(func=list_entries)
 
     # process args for `init` command
-    list_parser = subparsers.add_parser('init', help="initialize a new database (default ~/.passhole.kdbx)")
+    list_parser = subparsers.add_parser(
+        'init', help="initialize a new database (default ~/.passhole.kdbx)")
     list_parser.set_defaults(func=init_database)
 
     # optional arguments
-    parser.add_argument('--debug', action='store_true', default=False, help="enable debug messages")
-    parser.add_argument('--cache', metavar='PATH', type=str, default=passhole_cache, help="specify password cache")
-    parser.add_argument('--nocache', action='store_true', default=False, help="don't cache database password")
-    parser.add_argument('--keyfile', metavar='PATH', type=str, default=None, help="specify keyfile path")
-    parser.add_argument('--nokeyfile', action='store_true', default=False, help="don't look in default keyfile path")
-    parser.add_argument('--database', metavar='PATH', type=str, default=database_file, help="use a different database path")
-    parser.add_argument('-v', '--version', action='version', version=__version__, help="show version information")
-
+    parser.add_argument('--debug', action='store_true',
+                        default=False, help="enable debug messages")
+    parser.add_argument('--cache', metavar='PATH', type=str,
+                        default=passhole_cache, help="specify password cache")
+    parser.add_argument('--nocache', action='store_true',
+                        default=False, help="don't cache database password")
+    parser.add_argument('--keyfile', metavar='PATH', type=str,
+                        default=None, help="specify keyfile path")
+    parser.add_argument('--nokeyfile', action='store_true',
+                        default=False, help="don't look in default keyfile path")
+    parser.add_argument('--database', metavar='PATH', type=str,
+                        default=database_file, help="use a different database path")
+    parser.add_argument('-v', '--version', action='version',
+                        version=__version__, help="show version information")
 
     args = parser.parse_args()
 
@@ -381,6 +424,7 @@ def main():
         log.setLevel(logging.DEBUG)
 
     args.func(args)
+
 
 if __name__ == '__main__':
     main()
