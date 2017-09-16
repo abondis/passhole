@@ -104,7 +104,7 @@ GPG key doesn't exist or is not loaded in GPG agent
 
 .. code:: python
 
-   Please complete reservation informationsssword or keyfile incorrect
+   Passsword or keyfile incorrect
 
 If you are not using a keyfile, it can be your password cache that is incorrect. You can try some of the following options:
 
