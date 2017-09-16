@@ -100,4 +100,13 @@ Troubleshooting
    StopIteration
    
 GPG key doesn't exist or is not loaded in GPG agent
-  
+
+.. code:: python
+
+   Please complete reservation informationsssword or keyfile incorrect
+
+If you are not using a keyfile, it can be your password cache that is incorrect. You can try some of the following options:
+- ``--nocache`` : it should prompt for the password
+- ``--nokeyfile`` : it should skip trying to open the db with a keyfile
+- delete `~/.cache/passhole_cache` : it's an encrypted file containing the db password
+
