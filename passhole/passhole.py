@@ -201,7 +201,7 @@ def type_entries(args):
     items = '\n'.join(entry_paths)
 
     # get the entry from dmenu
-    p = Popen(args.prog, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    p = Popen(args.prog.split(), stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     stdout = p.communicate(input=items.encode('utf-8'))[0].decode('utf-8')
     selection_path = stdout.rstrip('\n').lstrip('[').rstrip(']')
 
@@ -247,12 +247,12 @@ def list_entries(args):
     kp = open_database(args)
 
     def list_items(group, depth):
-        log.info(bold(blue(' ' * depth + '[{}]'.format(group.name))))
+        log.info(bold(blue(u' ' * depth + '[{}]'.format(group.name))))
         for entry in sorted(group.entries, key=lambda x: x.__str__()):
             if entry == group.entries[-1]:
-                log.info(' ' * depth + "└── {0}".format(entry.title))
+                log.info(u' ' * depth + "└── {0}".format(entry.title))
             else:
-                log.info(' ' * depth + "├── {0}".format(entry.title))
+                log.info(u' ' * depth + "├── {0}".format(entry.title))
         for group in sorted(group.subgroups, key=lambda x: x.__str__()):
             list_items(group, depth + 4)
 
